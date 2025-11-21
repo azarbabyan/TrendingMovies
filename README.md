@@ -57,11 +57,6 @@ This project demonstrates scalable modular architecture, clean separation of lay
 - Scrollable details screen with Material 3 components
 - **Shared Material3 theme from `core:ui`**
 
-You can switch which UI launches by modifying `AndroidManifest.xml` to start:
-
-- `MainActivity` → XML version
-- `ComposeMoviesActivity` → Compose version
-
 ---
 
 ## 🏗 Architecture
