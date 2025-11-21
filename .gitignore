@@ -1,0 +1,97 @@
+# ============================
+# Android / Gradle / Kotlin
+# ============================
+
+# Built application files
+*.apk
+*.ap_
+*.aab
+
+# ART/Dalvik VM files
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+
+# Gradle generated files
+.build/
+build/
+captures/
+outputs/
+intermediates/
+generated/
+tmp/
+
+local.properties
+
+# Signing files
+*.keystore
+*.jks
+*.pem
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Kotlin
+kotlin/daemon/**
+kotlin/daemon-client/**
+.kotin_metadata
+
+# Logs
+*.log
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# ============================
+# Hilt / KSP / KAPT
+# ============================
+.kapt/
+.ksp/
+room-schema.json
+
+# ============================
+# Gradle
+# ============================
+.gradle/
+gradle-app.setting
+!gradle-wrapper.properties
+!gradle-wrapper.jar
+
+# ============================
+# NDK / C++
+# ============================
+obj/
+jniLibs/
+
+# ============================
+# Cache
+# ============================
+.cxx/
+.cache/
+.idea/caches/
+.idea/workspace.xml
+.idea/modules.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# Undo, temp files
+*.swp
+*.tmp
+
+# ============================
+# Android Navigation
+# ============================
+navigation.json
+
