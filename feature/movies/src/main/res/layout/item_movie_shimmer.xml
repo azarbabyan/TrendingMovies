@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardUseCompatPadding="true"
+    app:cardElevation="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/shimmerPoster"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#DDCCCCCC"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="2:2.4" />
+
+        <View
+            android:id="@+id/shimmerTitle"
+            android:layout_width="0dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="80dp"
+            android:layout_marginBottom="10dp"
+            android:background="#DDCCCCCC"
+            app:layout_constraintBottom_toBottomOf="@id/shimmerPoster"
+            app:layout_constraintStart_toStartOf="@id/shimmerPoster"
+            app:layout_constraintEnd_toEndOf="@id/shimmerPoster" />
+
+        <View
+            android:id="@+id/shimmerRating"
+            android:layout_width="60dp"
+            android:layout_height="16dp"
+            android:layout_margin="8dp"
+            android:background="#DDCCCCCC"
+            app:layout_constraintTop_toTopOf="@id/shimmerPoster"
+            app:layout_constraintEnd_toEndOf="@id/shimmerPoster" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

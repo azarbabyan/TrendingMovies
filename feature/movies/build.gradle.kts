@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
 
+    implementation(libs.shimmer)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
 

@@ -66,6 +66,9 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
+    implementation(libs.accompanist.placeholder.material)
+
+
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     implementation(libs.paging.runtime.ktx)

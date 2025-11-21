@@ -68,12 +68,42 @@ class TrendingMoviesFragment : Fragment() {
     private fun observeLoadState() {
         adapter.addLoadStateListener { loadState ->
             val refreshState = loadState.refresh
-            binding.progressTrending.isVisible = refreshState is LoadState.Loading
-            binding.recyclerTrendingMovies.isVisible = refreshState is LoadState.NotLoading
-            binding.layoutErrorTrending.isVisible = refreshState is LoadState.Error
-            if (refreshState is LoadState.Error) {
+
+            val isLoading = refreshState is LoadState.Loading
+            val isError = refreshState is LoadState.Error
+            val isNotLoading = refreshState is LoadState.NotLoading
+            if (isLoading && adapter.itemCount == 0) {
+                binding.shimmerTrending.visibility = View.VISIBLE
+                binding.shimmerTrending.startShimmer()
+
+                binding.recyclerTrendingMovies.visibility = View.GONE
+                binding.layoutErrorTrending.visibility = View.GONE
+                binding.layoutEmptyTrending.visibility = View.GONE
+                binding.progressTrending.visibility = View.GONE // optional: no more spinner
+            } else {
+                binding.shimmerTrending.stopShimmer()
+                binding.shimmerTrending.visibility = View.GONE
+            }
+            if (isError) {
                 val error = refreshState.error
+                binding.layoutErrorTrending.visibility = View.VISIBLE
+                binding.recyclerTrendingMovies.visibility = View.GONE
+                binding.layoutEmptyTrending.visibility = View.GONE
+                binding.progressTrending.visibility = View.GONE
+
                 binding.textErrorTrending.text = error.toUIMessage()
+            }
+            if (isNotLoading) {
+                binding.layoutErrorTrending.visibility = View.GONE
+                binding.progressTrending.visibility = View.GONE
+
+                if (adapter.itemCount == 0) {
+                    binding.recyclerTrendingMovies.visibility = View.GONE
+                    binding.layoutEmptyTrending.visibility = View.VISIBLE
+                } else {
+                    binding.recyclerTrendingMovies.visibility = View.VISIBLE
+                    binding.layoutEmptyTrending.visibility = View.GONE
+                }
             }
         }
     }

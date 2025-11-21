@@ -25,6 +25,9 @@ import androidx.paging.LoadState
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.arturzarbabyan.feature.moviescompose.model.MovieItemUi
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 
 @Composable
 fun TrendingMoviesRoute(
@@ -55,71 +58,98 @@ private fun TrendingMoviesScreen(
     onContent: () -> Unit,
     onError: (String) -> Unit
 ) {
-    LaunchedEffect(movies.loadState) {
-        val refresh = movies.loadState.refresh
-        when {
-            refresh is LoadState.Loading -> onLoading()
-            refresh is LoadState.NotLoading -> onContent()
-            refresh is LoadState.Error -> onError(refresh.error.message ?: "Unknown error")
+    val loadState = movies.loadState
+    val refreshState = loadState.refresh
+
+    LaunchedEffect(refreshState) {
+        when (refreshState) {
+            is LoadState.Loading -> onLoading()
+            is LoadState.NotLoading -> onContent()
+            is LoadState.Error -> onError(refreshState.error.message ?: "Unknown error")
         }
     }
 
+    val isRefreshing = refreshState is LoadState.Loading
+    val isError = refreshState is LoadState.Error
+    val isNotLoading = refreshState is LoadState.NotLoading
+    val isEmpty = isNotLoading && !isError && movies.itemCount == 0
 
     Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(movies.itemCount) { index ->
-                val item = movies[index] ?: return@items
-                MovieListItem(
-                    movie = item,
-                    onClick = { onMovieClick(item.id) }
-                )
-            }
 
-            movies.apply {
-                when (loadState.append) {
-                    is LoadState.Loading -> {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
-                            }
-                        }
+        when {
+            isRefreshing && movies.itemCount == 0 -> {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(5) { idx ->
+                        MovieListItem(
+                            movie = MovieItemUi(
+                                id = idx,
+                                title = "",
+                                posterUrl = null,
+                                ratingText = ""
+                            ),
+                            onClick = {},
+                            isPlaceholder = true
+                        )
                     }
-                    else -> Unit
                 }
             }
-        }
 
-        when (uiState) {
-            TrendingMoviesUiState.Loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-            is TrendingMoviesUiState.Error -> {
+            isEmpty -> {
                 Column(
                     modifier = Modifier.align(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = uiState.message)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Retry",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = Modifier.clickable { onRetry() }
-                    )
+                    Text(text = "No movies found")
                 }
             }
-            TrendingMoviesUiState.Idle -> Unit
+
+            else -> {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(movies.itemCount) { index ->
+                        val item = movies[index] ?: return@items
+                        MovieListItem(
+                            movie = item,
+                            onClick = { onMovieClick(item.id) }
+                        )
+                    }
+
+                    when (loadState.append) {
+                        is LoadState.Loading -> {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
+                        else -> Unit
+                    }
+                }
+            }
+        }
+
+        if (isError && uiState is TrendingMoviesUiState.Error) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = uiState.message)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Retry",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.clickable { onRetry() }
+                )
+            }
         }
     }
 }
@@ -127,19 +157,22 @@ private fun TrendingMoviesScreen(
 @Composable
 private fun MovieListItem(
     movie: MovieItemUi,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isPlaceholder: Boolean = false
 ) {
     val shape = MaterialTheme.shapes.medium
     val context = LocalContext.current
 
     Surface(
-        tonalElevation = 2.dp,
-        shadowElevation = 6.dp,
+        tonalElevation = if (isPlaceholder) 0.dp else 2.dp,
+        shadowElevation = if (isPlaceholder) 0.dp else 6.dp,
         shape = shape,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable(onClick = onClick)
+            .let {
+                if (isPlaceholder) it else it.clickable(onClick = onClick)
+            }
     ) {
         Box(
             modifier = Modifier
@@ -147,61 +180,66 @@ private fun MovieListItem(
                 .aspectRatio(2f / 2.4f)
         ) {
             AsyncImage(
-                model = ImageRequest.Builder(context)
+                model = if (isPlaceholder) null else ImageRequest.Builder(context)
                     .data(movie.posterUrl)
                     .crossfade(true)
                     .build(),
-                contentDescription = movie.title,
-                modifier = Modifier.matchParentSize(),
+                contentDescription = if (isPlaceholder) null else movie.title,
+                modifier = Modifier
+                    .matchParentSize()
+                    .placeholder(
+                        visible = isPlaceholder,
+                        highlight = PlaceholderHighlight.shimmer()
+                    ),
                 contentScale = ContentScale.Crop
             )
 
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color(0xCC000000) // semi-black at bottom
-                            ),
-                            startY = 0f,
-                            endY = Float.POSITIVE_INFINITY
+            if (!isPlaceholder) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color(0xCC000000)
+                                )
+                            )
                         )
+                )
+
+                Surface(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
+                    shape = RoundedCornerShape(999.dp),
+                    shadowElevation = 4.dp,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = movie.ratingText,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                     )
-            )
+                }
 
-            Surface(
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
-                shape = RoundedCornerShape(999.dp),
-                shadowElevation = 4.dp,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            ) {
-                Text(
-                    text = movie.ratingText,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(12.dp)
-            ) {
-                Text(
-                    text = movie.title,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    maxLines = 2
-                )
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = movie.title,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        maxLines = 2
+                    )
+                }
             }
         }
     }
