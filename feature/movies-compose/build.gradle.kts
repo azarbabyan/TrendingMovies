@@ -1,8 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.navigation.safe.args)
@@ -10,19 +11,16 @@ plugins {
 }
 
 android {
-    namespace = "com.arturzarbabyan.trendingmovies"
+    namespace = "com.arturzarbabyan.feature.moviescompose"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.arturzarbabyan.trendingmovies"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -33,6 +31,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+    buildFeatures{
+        compose = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -47,18 +48,12 @@ android {
 }
 
 dependencies {
-    implementation(project(":feature:movies"))
-    implementation(project(":feature:movies-compose"))
-    implementation(project(":core:ui"))
-    implementation(project(":core:network"))
     implementation(project(":domain:movies"))
-    implementation(project(":data:movies"))
+    implementation(project(":core:ui"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
 
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -67,14 +62,16 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
-
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    implementation(libs.paging.runtime.ktx)
+    implementation(libs.paging.compose)
+
+    implementation(libs.coil.compose)
 
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
@@ -82,8 +79,6 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
-
-
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

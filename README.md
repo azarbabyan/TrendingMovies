@@ -1,46 +1,66 @@
-# TMDb Trending Movies 
+# TMDb Trending Movies
 
-Android app that displays **trending movies from TMDb**, built as a **multi-module, clean architecture** project using **XML UI**, **Hilt DI**, and **Paging 3**.
+Android app that displays **trending movies from TMDb**, built as a **multi-module Clean Architecture** project using:
 
-This project focuses on:
+- **XML UI** (`feature:movies`)
+- **Jetpack Compose UI** (`feature:movies-compose`)
+- **Hilt DI**
+- **Paging 3**
+- **Shared core modules**
+- **Shared Material 3 Compose theme**
 
-- Clean, modular architecture
-- Clear separation of layers (data / domain / feature / core)
-- Network error handling and UI states (loading, error, success)
-- Readable and maintainable Kotlin code
+This project demonstrates scalable modular architecture, clean separation of layers, reusable core utilities, and two fully functional UI implementations (XML + Compose).
 
 ---
 
 ## 📱 Features
 
-### Trending Movies Screen
-- Displays **trending movies (weekly)** from TMDb
-- **Infinite scrolling** with **Paging 3**
-- Each item shows:
-  - Movie poster
+### **Trending Movies Screen**
+- Weekly trending movies from TMDb
+- Infinite scrolling with **Paging 3**
+- Movie card:
+  - Poster (with aspect ratio 2:2.4)
+  - Gradient overlay
   - Title
-  - Rating with a pill-style badge
-- Uses a **modern Material-style card design**
+  - Rating pill
+- Available in **XML** and **Compose**
 
-### Movie Details Screen
-- Displays:
-  - Poster
-  - Title (also in header)
-  - TMDb rating
-  - Release date (formatted as: `dd MMM yyyy`, e.g. `23 Sep 1994`)
-  - Genres
-  - Overview
-- Error + loading states with retry
-- Simple **back button** in the header row
+### **Movie Details Screen**
+- Poster
+- Title
+- Rating
+- Release date (`dd MMM yyyy`, e.g. `23 Sep 1994`)
+- Genres
+- Overview
+- Error & retry handling
+- **Compose version has a Material 3 TopAppBar with always-visible back button**
 
-### Error & Network Handling
-- Centralized `safeApiCall` helper for all network calls
-- Custom `NetworkException` types:
-  - `NetworkUnavailable`
-  - `HttpError` (with HTTP status code)
-  - `Unknown`
-- Shared error → UI message mapper
-- UI shows human-friendly messages and **Retry** buttons
+---
+
+## 📝 Two UI Implementations
+
+### **1. XML UI (feature:movies)**
+- `TrendingMoviesFragment`
+- `MovieDetailsFragment`
+- RecyclerView + ViewBinding
+- Material-style cards
+- Custom gradient overlays
+- Manual layouts designed in XML
+
+### **2. Compose UI (feature:movies-compose)**
+- `TrendingMoviesRoute`
+- `MovieDetailsRoute`
+- LazyColumn for list
+- Material 3 Components
+- Same data, domain & UI mapping layer reused
+- Poster card + gradient + rating pill
+- Scrollable details screen with Material 3 components
+- **Shared Material3 theme from `core:ui`**
+
+You can switch which UI launches by modifying `AndroidManifest.xml` to start:
+
+- `MainActivity` → XML version
+- `ComposeMoviesActivity` → Compose version
 
 ---
 
@@ -79,6 +99,12 @@ Data flow:
   - Paging 3 adapter for trending list
   - XML layouts for list items and details
   - Maps domain models → UI models
+
+- `:feature:movies-compose`
+  - Composables for trending and details
+  - Paging Compose integration
+  - Material 3 components
+  - Reuses models, use cases, repository
 
 - `:domain:movies`
   - Domain models:
