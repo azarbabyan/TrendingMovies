@@ -27,7 +27,7 @@ intermediates/
 generated/
 tmp/
 
-local.properties
+# local.properties
 
 # Signing files
 *.keystore
